@@ -80,16 +80,12 @@ let getTestServer () =
      new TestServer(
             WebHostBuilder()
                 .Configure(fun app -> configureEchoServer app))
-                    // let wsClient = server.CreateWebSocketClient()
-                    // do!
-                    //     [100;1000;10000;100000;1000000]
-                    //     |> Seq.map (fun i -> job {
-                    //         let! websocket = wsClient.ConnectAsync(server.BaseAddress, CancellationToken.None)
+
 
 let constructLocalUri port =
     sprintf "http://localhost:%d" port
 
-let getKestrelServer uri =
+let getKestrelServer uri = job {
     let configBuilder = new ConfigurationBuilder()
     let configBuilder = configBuilder.AddInMemoryCollection()
     let config = configBuilder.Build()
@@ -100,8 +96,9 @@ let getKestrelServer uri =
                 .Configure(fun app -> configureEchoServer app )
                 .Build()
 
-    host.Start()
-    host
+    do! host.StartAsync() |> Job.awaitUnitTask
+    return host
+}
 
 let getOpenClientWebSocket (testServer : TestServer) = job {
     let ws = testServer.CreateWebSocketClient()
@@ -128,10 +125,9 @@ let getPort () =
 let inline getServerAndWs () = job {
     let uri = getPort () |> constructLocalUri
     // printfn "starting up %A" uri
-    let wsUri =  Uri(uri)
     let builder = UriBuilder(uri)
     builder.Scheme <- "ws"
-    let server = getKestrelServer uri
+    let! server = getKestrelServer uri
     let! clientWebSocket = builder.Uri |> getOpenWebSocket
     return server, clientWebSocket
 }
@@ -146,7 +142,7 @@ let tests =
                     let! (server, clientWebSocket) = getServerAndWs()
                     use server = server
                     use clientWebSocket = clientWebSocket
-                    let expected = genStr (100 * index)
+                    let expected = genStr (2000 * index)
                     do! clientWebSocket  |> WebSocket.sendMessageAsUTF8 expected
                     let! actual = clientWebSocket |> WebSocket.readMessageAsUTF8
                     Expect.equal actual expected "did not echo"
@@ -154,6 +150,7 @@ let tests =
 
         yield
             testCaseJob "Many concurrent writes to websocket should throw exception" <| job {
+                // To create thie exception we actually have to run against Kestrel and not TestHost
                 // Go figure trying to get a timing exception to occur isn't always reliable
                 // Job.catch returns empty exception sometimes so we'll keep trying until we get the exception we're looking for
                 let rec inner () = job {
@@ -211,8 +208,5 @@ let tests =
                             WebSocket.WebsocketThreadSafe.receiveUTF8String threadSafeWebSocket
                         |> Job.conCollect
                     Expect.sequenceEqual (receiveResult |> Seq.sort) (expected |> Seq.sort) "Didn't echo properly"
-
-
             }
-
   ]

@@ -76,7 +76,7 @@ module WebSocket =
                     return! sendMessage'()
                 else
                     do!
-                        (socket |> send (ArraySegment(buffer |> Array.take read))  messageType true)
+                        (socket |> send (ArraySegment(Array.empty))  messageType true)
                         <|> nack
             }
 
