@@ -1,6 +1,7 @@
 namespace Hopac.Websockets
 
 
+open System.IO
 [<AutoOpen>]
 module Infixes =
     let (^) = (<|)
@@ -39,23 +40,28 @@ module WebSocket =
     open System.Net.WebSockets
     open Hopac.Infixes
 
-    let receive buffer  (websocket : WebSocket)=
+    type BufferSize = int
+    // https://referencesource.microsoft.com/#System/net/System/Net/WebSockets/WebSocketHelpers.cs,285b8b64a4da6851
+    [<Literal>]
+    let defaultBufferSize = 16384 // (16 * 1024)
+
+    let receive buffer  (websocket : #WebSocket)=
         Alt.fromTask ^ fun ct ->
             websocket.ReceiveAsync(buffer,ct)
 
-    let send buffer messageType endOfMessage (websocket : WebSocket) =
+    let send buffer messageType endOfMessage (websocket : #WebSocket) =
         Alt.fromUnitTask ^ fun ct ->
             websocket.SendAsync(buffer, messageType, endOfMessage, ct)
 
 
-    let close status message  (websocket : WebSocket) =
+    let close status message  (websocket : #WebSocket) =
         Alt.fromUnitTask ^ fun ct ->
             websocket.CloseAsync(status,message,ct)
 
-    let isWebsocketOpen (socket : WebSocket) =
+    let isWebsocketOpen (socket : #WebSocket) =
         socket.State = WebSocketState.Open
 
-    let sendMessage bufferSize messageType (message : #IO.Stream) (socket : WebSocket) =
+    let sendMessage bufferSize messageType (message : #IO.Stream) (socket : #WebSocket) =
         Alt.withNackJob ^ fun nack -> job {
             let buffer = Array.create (bufferSize) Byte.MinValue
 
@@ -78,7 +84,15 @@ module WebSocket =
             return Alt.unit()
         }
 
-    let readMessage bufferSize messageType (stream : IO.Stream) (socket : WebSocket) =
+    let UTF8toMemoryStream (text : string) =
+        new IO.MemoryStream(Text.Encoding.UTF8.GetBytes text)
+
+    let sendMessageAsUTF8 text socket =
+         Alt.using (UTF8toMemoryStream text)
+            ^ fun stream ->
+                sendMessage defaultBufferSize WebSocketMessageType.Text stream socket
+
+    let readMessage bufferSize messageType (stream : IO.Stream) (socket : #WebSocket) =
         Alt.withNackJob ^ fun nack -> job {
             let buffer = new ArraySegment<Byte>( Array.create (bufferSize) Byte.MinValue)
 
@@ -101,10 +115,20 @@ module WebSocket =
             return Alt.unit()
         }
 
-    type BufferSize = int
-    // https://referencesource.microsoft.com/#System/net/System/Net/WebSockets/WebSocketHelpers.cs,285b8b64a4da6851
-    [<Literal>]
-    let defaultBufferSize = 16384 // (16 * 1024)
+    let memoryStreamToUTF8 (stream : IO.MemoryStream) =
+        stream.Seek(0L,IO.SeekOrigin.Begin) |> ignore
+        stream.ToArray()
+        |> Text.Encoding.UTF8.GetString
+        |> fun s -> s.TrimEnd(char 0)
+
+    let readMessageAsUTF8 socket =
+        Alt.using (new MemoryStream())
+        ^ fun stream ->
+            readMessage defaultBufferSize WebSocketMessageType.Text stream socket
+            ^-> fun _ -> stream |> memoryStreamToUTF8
+
+
+
 
     type SendMessage = BufferSize * WebSocketMessageType * IO.Stream  * Ch<unit> * Promise<unit>
     type ReceiveMessage= BufferSize * WebSocketMessageType * IO.Stream   * Ch<unit> * Promise<unit>
@@ -165,7 +189,7 @@ module WebSocket =
 
         let sendUTF8String (wsts : WebsocketThreadSafe) (text : string) =
             Alt.using
-                (new IO.MemoryStream(Text.Encoding.UTF8.GetBytes text))
+                (UTF8toMemoryStream text)
                 ^ fun ms ->  sendText wsts ms
 
         let receive wsts bufferSize messageType stream =
@@ -184,10 +208,7 @@ module WebSocket =
                 ^ fun stream ->
                     receiveText wsts stream
                     ^-> fun () ->
-                        stream.Seek(0L,IO.SeekOrigin.Begin) |> ignore
-                        stream.ToArray()
-                        |> Text.Encoding.UTF8.GetString
-                        |> fun s -> s.TrimEnd(char 0) //Remove null terminator
+                        stream |> memoryStreamToUTF8 //Remove null terminator
 
         let close wsts status message =
             wsts.closeCh *<+->- fun reply nack ->

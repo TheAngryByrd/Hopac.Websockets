@@ -4,10 +4,15 @@ clitool dotnet-mono 0.5.1
 clitool Microsoft.DotNet.Watcher.Tools 1.0.0
 nuget Argu 3.7
 nuget FSharp.Core 4.3.3
-nuget Expecto 6.0.0
-nuget Expecto.BenchmarkDotNet 6.0.0
 nuget Hopac
 nuget SourceLink.Create.CommandLine 2.7.2 copy_local: true
+
+#test
+nuget Expecto 6.0.0
+nuget Expecto.BenchmarkDotNet 6.0.0
+nuget Microsoft.AspNetCore.TestHost
+nuget Microsoft.AspNetCore.WebSockets
+nuget Microsoft.AspNetCore.Server.Kestrel
 
 group Build
     source https://www.nuget.org/api/v2

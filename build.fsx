@@ -119,7 +119,7 @@ let killParentsAndChildren processId=
 
 
 Target "WatchTests" (fun _ ->
-    runTests (sprintf "watch %s")
+    runTests (sprintf "watch %s --no-restore")
     |> Seq.iter (invokeAsync >> Async.Catch >> Async.Ignore >> Async.Start)
 
     printfn "Press Ctrl+C (or Ctrl+Break) to stop..."
@@ -200,9 +200,7 @@ Target "Publish" (fun _ ->
 
 
 
-
 Target "Release" (fun _ ->
-
     if Git.Information.getBranchName "" <> "master" then failwith "Not on master"
 
     let releaseNotesGitCommitFormat = ("",release.Notes |> Seq.map(sprintf "* %s\n")) |> String.Join
@@ -218,8 +216,11 @@ Target "Release" (fun _ ->
 "Clean" ?=> "DotnetRestore"
 "Clean" ==> "DotnetPack"
 
+"DotnetRestore" ?=> "AssemblyInfo"
+"AssemblyInfo" ?=> "DotnetBuild"
+"AssemblyInfo" ==> "Publish"
+
 "DotnetRestore"
-  ==> "AssemblyInfo"
   ==> "DotnetBuild"
   ==> "DotnetTest"
   ==> "DotnetPack"
