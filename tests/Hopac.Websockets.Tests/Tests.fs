@@ -55,7 +55,7 @@ let echoWebSocket (httpContext : HttpContext) (next : unit -> Job<unit>) = job {
     if httpContext.WebSockets.IsWebSocketRequest then
         let! (websocket : WebSocket) = httpContext.WebSockets.AcceptWebSocketAsync()
         while websocket.State <> WebSocketState.Closed do
-            let! text = websocket |> WebSocket.readMessageAsUTF8
+            let! text = websocket |> WebSocket.receiveMessageAsUTF8
             do! websocket |> WebSocket.sendMessageAsUTF8 text
         ()
     else
@@ -144,7 +144,7 @@ let tests =
                     use clientWebSocket = clientWebSocket
                     let expected = genStr (2000 * index)
                     do! clientWebSocket  |> WebSocket.sendMessageAsUTF8 expected
-                    let! actual = clientWebSocket |> WebSocket.readMessageAsUTF8
+                    let! actual = clientWebSocket |> WebSocket.receiveMessageAsUTF8
                     Expect.equal actual expected "did not echo"
                 }
 
@@ -184,13 +184,13 @@ let tests =
             }
 
         yield
-            testCaseJob "Many concurrent writes to WebSocketThreadSafe shouldn't throw exception" <| job {
+            testCaseJob "Many concurrent writes to ThreadSafeWebSocket shouldn't throw exception" <| job {
                     let! (server, clientWebSocket) = getServerAndWs()
                     use server = server
                     use clientWebSocket = clientWebSocket
-                    let! threadSafeWebSocket = WebSocket.WebsocketThreadSafe.createFromWebSocket clientWebSocket
+                    let! threadSafeWebSocket = ThreadSafeWebSocket.createFromWebSocket clientWebSocket
 
-                    let maxMessagesToSend = 1000
+                    let maxMessagesToSend = 2000
 
                     let expected =
                         [1..maxMessagesToSend]
@@ -198,15 +198,17 @@ let tests =
                         |> Seq.toList
                     let! sendResult =
                         expected
-                        |> Seq.map  (WebSocket.WebsocketThreadSafe.sendUTF8String threadSafeWebSocket)
+                        |> Seq.map  (ThreadSafeWebSocket.sendMessageAsUTF8 threadSafeWebSocket)
                         |> Job.conIgnore
                         |> Job.catch
                     Expect.isChoice1Of2 sendResult "did not throw System.InvalidOperationException"
                     let! receiveResult =
                         [1..maxMessagesToSend]
                         |> Seq.map ^ fun _ ->
-                            WebSocket.WebsocketThreadSafe.receiveUTF8String threadSafeWebSocket
+                            ThreadSafeWebSocket.readMessageAsUTF8 threadSafeWebSocket
                         |> Job.conCollect
                     Expect.sequenceEqual (receiveResult |> Seq.sort) (expected |> Seq.sort) "Didn't echo properly"
+
+                    do!  ThreadSafeWebSocket.close threadSafeWebSocket WebSocketCloseStatus.NormalClosure "End Test"
             }
   ]
