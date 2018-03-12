@@ -8,8 +8,8 @@
 
 MacOS/Linux | Windows
 --- | ---
-[![Travis Badge](https://travis-ci.org/TheAngryByrd/Hopac.Websockets.svg?branch=master)](https://travis-ci.org/TheAngryByrd/Hopac.Websockets) | [![Build status](https://ci.appveyor.com/api/projects/status/github/TheAngryByrd/Hopac.Websockets?svg=true)](https://ci.appveyor.com/project/TheAngryByrd/Hopac.Websockets)
-[![Build History](https://buildstats.info/travisci/chart/TheAngryByrd/Hopac.Websockets)](https://travis-ci.org/TheAngryByrd/Hopac.Websockets/builds) | [![Build History](https://buildstats.info/appveyor/chart/TheAngryByrd/Hopac.Websockets)](https://ci.appveyor.com/project/TheAngryByrd/Hopac.Websockets)  
+[![Travis Badge](https://travis-ci.org/TheAngryByrd/Hopac.Websockets.svg?branch=master)](https://travis-ci.org/TheAngryByrd/Hopac.Websockets) | [![Build status](https://ci.appveyor.com/api/projects/status/github/TheAngryByrd/Hopac.Websockets?svg=true)](https://ci.appveyor.com/project/TheAngryByrd/Hopac-Websockets)
+[![Build History](https://buildstats.info/travisci/chart/TheAngryByrd/Hopac.Websockets)](https://travis-ci.org/TheAngryByrd/Hopac.Websockets/builds) | [![Build History](https://buildstats.info/appveyor/chart/TheAngryByrd/Hopac-Websockets)](https://ci.appveyor.com/project/TheAngryByrd/Hopac-Websockets)  
 
 
 ## Nuget 
