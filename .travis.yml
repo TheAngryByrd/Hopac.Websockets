@@ -11,6 +11,7 @@ mono:
   - weekly # => "latest commits"
 os:
   - linux
+  - osx
 
 addons:
   apt:

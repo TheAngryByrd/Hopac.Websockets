@@ -209,6 +209,6 @@ let tests =
                         |> Job.conCollect
                     Expect.sequenceEqual (receiveResult |> Seq.sort) (expected |> Seq.sort) "Didn't echo properly"
 
-                    do!  ThreadSafeWebSocket.close threadSafeWebSocket WebSocketCloseStatus.NormalClosure "End Test"
+                    // do!  ThreadSafeWebSocket.close threadSafeWebSocket WebSocketCloseStatus.NormalClosure "End Test"
             }
   ]
