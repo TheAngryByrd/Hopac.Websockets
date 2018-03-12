@@ -1,7 +1,5 @@
 namespace Hopac.Websockets
 
-
-open System.IO
 [<AutoOpen>]
 module Infixes =
     let (^) = (<|)
@@ -51,7 +49,7 @@ module Stream =
         static member UTF8toMemoryStream (text : string) =
             new IO.MemoryStream(Text.Encoding.UTF8.GetBytes text)
 
-        static member ToUTF8String (stream : MemoryStream) =
+        static member ToUTF8String (stream : IO.MemoryStream) =
             stream.Seek(0L,IO.SeekOrigin.Begin) |> ignore //ensure start of stream
             stream.ToArray()
             |> Text.Encoding.UTF8.GetString
@@ -171,7 +169,7 @@ module WebSocket =
 
     /// Receives a whole message as a utf8 string
     let receiveMessageAsUTF8 socket =
-        Alt.using (new MemoryStream())
+        Alt.using (new IO.MemoryStream())
         ^ fun stream ->
             receiveMessage defaultBufferSize WebSocketMessageType.Text stream socket
             ^-> fun _ -> stream |> IO.MemoryStream.ToUTF8String
