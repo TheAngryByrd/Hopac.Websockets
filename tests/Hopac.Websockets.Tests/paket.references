@@ -2,7 +2,6 @@ Expecto
 FSharp.Core
 Microsoft.DotNet.Watcher.Tools
 dotnet-mono
-Expecto.BenchmarkDotNet
 Microsoft.AspNetCore.TestHost
 Microsoft.AspNetCore.WebSockets
 Microsoft.AspNetCore.Server.Kestrel

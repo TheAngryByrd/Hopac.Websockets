@@ -9,7 +9,6 @@ nuget SourceLink.Create.CommandLine 2.7.2 copy_local: true
 
 #test
 nuget Expecto 6.0.0
-nuget Expecto.BenchmarkDotNet 6.0.0
 nuget Microsoft.AspNetCore.TestHost
 nuget Microsoft.AspNetCore.WebSockets
 nuget Microsoft.AspNetCore.Server.Kestrel
