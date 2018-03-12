@@ -1,6 +1,11 @@
 # Hopac.Websockets
 
-[Enter useful description for Hopac.Websockets]
+A threadsafe [Hopac](https://github.com/Hopac/Hopac) wrapper around [dotnet websockets](https://docs.microsoft.com/en-us/dotnet/api/system.net.websockets.websocket?view=netcore-2.0).
+
+
+### Why? 
+
+Dotnet websockets only allow for one receive and one send at a time. This results in if multiple threads try to write to a stream, it will throw a `System.InvalidOperationException`. This wraps a websocket in a hopac server-client model that allows for multiple threads to write or read at the same time. See https://docs.microsoft.com/en-us/dotnet/api/system.net.websockets.websocket.receiveasync?view=netcore-2.0#Remarks
 
 ---
 
