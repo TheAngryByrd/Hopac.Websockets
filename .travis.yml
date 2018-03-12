@@ -2,7 +2,7 @@ language: csharp
 sudo: required
 dist: trusty
 
-dotnet: 2.0.3
+dotnet: 2.1.4
 mono:
   - 5.10.0
   - latest # => "stable release"
@@ -16,6 +16,12 @@ addons:
   apt:
     packages:
     - dotnet-sharedframework-microsoft.netcore.app-1.1.2
+
+before_script:
+ - if [ "$TRAVIS_OS_NAME" == "linux" ];
+   then export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:~/.nuget/packages/libuv/1.10.0/runtimes/linux-x64/native;
+   else ln -s ~/.nuget/packages/libuv/1.10.0/runtimes/osx/native/libuv.dylib /usr/local/lib/libuv.dylib;
+   fi
 
 script:
   - ./build.sh
