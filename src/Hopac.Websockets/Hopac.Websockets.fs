@@ -1,5 +1,6 @@
 namespace Hopac.Websockets
 
+open System
 [<AutoOpen>]
 module Infixes =
     let (^) = (<|)
@@ -78,14 +79,14 @@ module WebSocket =
     /// A Hopac Alt version of ReceiveAsync
     /// Alt: https://hopac.github.io/Hopac/Hopac.html#def:type%20Hopac.Alt
     /// ReceiveAsync: https://docs.microsoft.com/en-us/dotnet/api/system.net.websockets.websocket.receiveasync?view=netcore-2.0
-    let receive buffer  (websocket : #WebSocket)=
+    let receive (buffer : ArraySegment<byte>)  (websocket : #WebSocket)=
         Alt.fromTask ^ fun ct ->
             websocket.ReceiveAsync(buffer,ct)
 
     /// A Hopac Alt version of SendAsync
     /// Alt: https://hopac.github.io/Hopac/Hopac.html#def:type%20Hopac.Alt
     /// SendAsync: https://docs.microsoft.com/en-us/dotnet/api/system.net.websockets.websocket.sendasync?view=netcore-2.0
-    let send buffer messageType endOfMessage (websocket : #WebSocket) =
+    let send (buffer : ArraySegment<byte>) messageType endOfMessage (websocket : #WebSocket) =
         Alt.fromUnitTask ^ fun ct ->
             websocket.SendAsync(buffer, messageType, endOfMessage, ct)
 

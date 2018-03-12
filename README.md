@@ -48,14 +48,6 @@ The `WatchTests` target will use [dotnet-watch](https://github.com/aspnet/Docs/b
 ```
 
 ### Releasing
-* [Start a git repo with a remote](https://help.github.com/articles/adding-an-existing-project-to-github-using-the-command-line/)
-
-```
-git add .
-git commit -m "Scaffold"
-git remote add origin origin https://github.com/user/MyCoolNewLib.git
-git push -u origin master
-```
 
 * [Add your nuget API key to paket](https://fsprojects.github.io/Paket/paket-config.html#Adding-a-NuGet-API-key)
 
