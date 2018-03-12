@@ -5,7 +5,7 @@ A threadsafe [Hopac](https://github.com/Hopac/Hopac) wrapper around [dotnet webs
 
 ### Why? 
 
-Dotnet websockets only allow for one receive and one send at a time. This results in if multiple threads try to write to a stream, it will throw a `System.InvalidOperationException` with the message `There is already one outstanding 'SendAsync' call for this WebSocket instance. ReceiveAsync and SendAsync can be called simultaneously, but at most one outstanding operation for each of them is allowed at the same time.`. This wraps a websocket in a hopac server-client model that allows for multiple threads to write or read at the same time. See https://docs.microsoft.com/en-us/dotnet/api/system.net.websockets.websocket.receiveasync?view=netcore-2.0#Remarks
+Dotnet websockets only allow for one receive and one send at a time. If multiple threads try to write to a websocket, it will throw a `System.InvalidOperationException` with the message `There is already one outstanding 'SendAsync' call for this WebSocket instance. ReceiveAsync and SendAsync can be called simultaneously, but at most one outstanding operation for each of them is allowed at the same time.`. This wraps a websocket in a hopac server-client model that allows for multiple threads to write or read at the same time. See https://docs.microsoft.com/en-us/dotnet/api/system.net.websockets.websocket.sendasync?view=netcore-2.0#Remarks
 
 ---
 
