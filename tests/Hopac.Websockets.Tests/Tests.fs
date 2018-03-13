@@ -156,7 +156,7 @@ let tests =
                 // Go figure trying to get a timing exception to occur isn't always reliable
                 // Job.catch returns empty exception sometimes so we'll keep trying until we get the exception we're looking for
                 let rec inner (attempt : int) = job {
-                    if attempt = 50 then
+                    if attempt = 1000 then
                         skiptest "Too many attempts. Skipping"
                     else
 
@@ -188,8 +188,7 @@ let tests =
                             | _ ->
                                 do! inner (attempt + 1)
                         | Choice2Of2 e ->
-                            skiptest "Socket connection failed. Skipping"
-                            // do! inner()
+                            do! inner (attempt + 1)
                 }
                 do! inner 0
             }
