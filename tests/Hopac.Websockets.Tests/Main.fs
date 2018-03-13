@@ -1,6 +1,7 @@
 module ExpectoTemplate
 open Expecto
 open System.Reflection
+open System.Threading.Tasks
 
 
 module AssemblyInfo =
@@ -30,4 +31,8 @@ let main argv =
         let releaseDate = AssemblyInfo.getReleaseDate assembly
         let githash  = AssemblyInfo.getGitHash assembly
         printfn "%s - %A - %s - %s" name.Name version releaseDate githash
-    Tests.runTestsInAssembly defaultConfig argv
+    let config =  {
+        defaultConfig with
+            ``parallel`` = false
+    }
+    Tests.runTestsInAssembly config argv

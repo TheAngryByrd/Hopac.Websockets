@@ -1,6 +1,7 @@
 namespace Hopac.Websockets
 
 open System
+open Hopac
 [<AutoOpen>]
 module Infixes =
     let (^) = (<|)
@@ -22,6 +23,15 @@ module Hopac =
                 (ct.Register(fun () -> cancelled *<=  () |> start))
                 ^ fun _ -> cancelled
 
+    module Infixes =
+        let ( *<-->= ) qCh rCh2n2qJ = Alt.withNackJob <| fun nack ->
+          let rCh = IVar<_> ()
+          rCh2n2qJ rCh nack >>= fun q ->
+          qCh *<+ q >>-.
+          rCh
+
+        let ( *<-->- ) qCh rCh2n2q =
+            qCh *<-->= fun rCh n -> rCh2n2q rCh n |> Job.result
 [<AutoOpen>]
 module Stream =
     open System
@@ -183,10 +193,10 @@ module ThreadSafeWebSocket =
     open System.Net.WebSockets
     open Hopac.Infixes
 
-    type SendMessage = WebSocket.BufferSize * WebSocketMessageType * IO.Stream  * Ch<unit> * Promise<unit>
-    type ReceiveMessage=WebSocket.BufferSize * WebSocketMessageType * IO.Stream   * Ch<unit> * Promise<unit>
-    type CloseMessage = WebSocketCloseStatus * string * Ch<unit> * Promise<unit>
-    type CloseOutputMessage = WebSocketCloseStatus * string * Ch<unit> * Promise<unit>
+    type SendMessage = WebSocket.BufferSize * WebSocketMessageType * IO.Stream  * IVar<unit> * Promise<unit>
+    type ReceiveMessage=WebSocket.BufferSize * WebSocketMessageType * IO.Stream   * IVar<unit> * Promise<unit>
+    type CloseMessage = WebSocketCloseStatus * string * IVar<unit> * Promise<unit>
+    type CloseOutputMessage = WebSocketCloseStatus * string * IVar<unit> * Promise<unit>
 
     type ThreadSafeWebSocket = {
         sendCh : Ch<SendMessage>
@@ -212,25 +222,37 @@ module ThreadSafeWebSocket =
 
             let send () =
                 self.sendCh ^=> fun (bufferSize, messageType, stream, reply, nack) -> job {
-                    do! (WebSocket.sendMessage bufferSize messageType stream webSocket ^=> Ch.give reply )
+                    do! Alt.tryIn
+                            (WebSocket.sendMessage bufferSize messageType stream webSocket)
+                            (IVar.fill reply)
+                            (IVar.fillFailure reply)
                         <|> nack
                 }
 
             let receive () =
                 self.receiveCh ^=> fun (bufferSize, messageType, stream, reply, nack) -> job {
-                    do! (WebSocket.receiveMessage bufferSize messageType stream webSocket  ^=> Ch.give reply )
+                    do! Alt.tryIn
+                            (WebSocket.receiveMessage bufferSize messageType stream webSocket)
+                            (IVar.fill reply)
+                            (IVar.fillFailure reply)
                         <|> nack
                 }
 
             let close () =
                 self.closeCh ^=> fun (status, message, reply, nack) -> job {
-                    do! (WebSocket.close status message webSocket ^=> Ch.give reply )
+                    do! Alt.tryIn
+                            (WebSocket.close status message webSocket)
+                            (IVar.fill reply)
+                            (IVar.fillFailure reply)
                         <|> nack
                 }
 
             let closeOutput () =
                 self.closeOutputCh ^=> fun (status, message, reply, nack) -> job {
-                    do! (WebSocket.closeOutput status message webSocket ^=> Ch.give reply )
+                    do! Alt.tryIn
+                            (WebSocket.closeOutput status message webSocket)
+                            (IVar.fill reply)
+                            (IVar.fillFailure reply)
                         <|> nack
                 }
 
@@ -246,7 +268,7 @@ module ThreadSafeWebSocket =
 
         /// Sends a whole message to the websocket read from the given stream
         let sendMessage wsts bufferSize messageType stream =
-            wsts.sendCh *<+->- fun reply nack ->
+            wsts.sendCh *<-->- fun reply nack ->
                 (bufferSize, messageType, stream, reply,nack)
 
         /// Sends the UTF8 string as a whole websocket message
@@ -258,7 +280,7 @@ module ThreadSafeWebSocket =
         /// Receives a whole message written to the given stream
         /// Attempts to handle closes gracefully
         let receiveMessage wsts bufferSize messageType stream =
-            wsts.receiveCh *<+->- fun reply nack ->
+            wsts.receiveCh *<-->- fun reply nack ->
                 (bufferSize, messageType, stream, reply,nack)
 
         /// Receives a whole message as a utf8 string
@@ -273,7 +295,7 @@ module ThreadSafeWebSocket =
         /// Grace approach to shutting down. Use when you want to other end to acknowledge the close.
         /// CloseAsync: https://docs.microsoft.com/en-us/dotnet/api/system.net.websockets.websocket.closeasync?view=netcore-2.0
         let close wsts status message =
-            wsts.closeCh *<+->- fun reply nack ->
+            wsts.closeCh *<-->- fun reply nack ->
                 (status, message, reply, nack)
 
 
@@ -281,5 +303,5 @@ module ThreadSafeWebSocket =
         /// Alt: https://hopac.github.io/Hopac/Hopac.html#def:type%20Hopac.Alt
         /// CloseOutputAsync: https://docs.microsoft.com/en-us/dotnet/api/system.net.websockets.websocket.closeoutputasync?view=netcore-2.0
         let closeOutput wsts status message =
-            wsts.closeOutputCh *<+->- fun reply nack ->
+            wsts.closeOutputCh *<-->- fun reply nack ->
                 (status, message, reply, nack)
