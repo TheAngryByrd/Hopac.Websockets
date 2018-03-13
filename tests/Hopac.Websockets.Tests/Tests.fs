@@ -55,8 +55,10 @@ let echoWebSocket (httpContext : HttpContext) (next : unit -> Job<unit>) = job {
     if httpContext.WebSockets.IsWebSocketRequest then
         let! (websocket : WebSocket) = httpContext.WebSockets.AcceptWebSocketAsync()
         while websocket.State <> WebSocketState.Closed do
-            let! text = websocket |> WebSocket.receiveMessageAsUTF8
-            do! websocket |> WebSocket.sendMessageAsUTF8 text
+            do! websocket
+                |> WebSocket.receiveMessageAsUTF8
+                |> Job.bind(fun text -> WebSocket.sendMessageAsUTF8 text websocket)
+
         ()
     else
         do! next()
@@ -153,39 +155,43 @@ let tests =
                 // To create thie exception we actually have to run against Kestrel and not TestHost
                 // Go figure trying to get a timing exception to occur isn't always reliable
                 // Job.catch returns empty exception sometimes so we'll keep trying until we get the exception we're looking for
-                let rec inner () = job {
-                    let! servers = getServerAndWs() |> Job.catch
-                    match servers with
-                    | Choice1Of2 (server, clientWebSocket) ->
-                        use server = server
-                        use clientWebSocket = clientWebSocket
-                        let! result =
-                            [1..(Environment.ProcessorCount + 5)]
-                            |> Seq.map ^ fun _ ->
-                                clientWebSocket  |> WebSocket.sendMessageAsUTF8 (genStr 1000)
-                            |> Job.conIgnore
-                            |> Job.catch
+                let rec inner (attempt : int) = job {
+                    if attempt = 50 then
+                        skiptest "Too many attempts. Skipping"
+                    else
+
+                        let! servers = getServerAndWs() |> Job.catch
+                        match servers with
+                        | Choice1Of2 (server, clientWebSocket) ->
+                            use server = server
+                            use clientWebSocket = clientWebSocket
+                            let! result =
+                                [1..(Environment.ProcessorCount + 5)]
+                                |> Seq.map ^ fun _ ->
+                                    clientWebSocket  |> WebSocket.sendMessageAsUTF8 (genStr 1000)
+                                |> Job.conIgnore
+                                |> Job.catch
 
 
-                        match result with
+                            match result with
+                            | Choice2Of2 e ->
+                                match e with
+                                | :? AggregateException as ae ->
+                                    let exns = ae.Flatten().InnerExceptions
+                                    // exns
+                                    // |> Expect.exceptionExists "System.Net.WebSockets.WebSocketException" "The WebSocket is in an invalid state ('Aborted') for this operation. Valid states are: 'Open, CloseReceived'"
+                                    try
+                                        exns
+                                        |> Expect.exceptionExists "System.InvalidOperationException" "There is already one outstanding 'SendAsync' call for this WebSocket instance. ReceiveAsync and SendAsync can be called simultaneously, but at most one outstanding operation for each of them is allowed at the same time."
+                                    with _ -> do! inner(attempt + 1)
+                                | e -> do! inner (attempt + 1)
+                            | _ ->
+                                do! inner (attempt + 1)
                         | Choice2Of2 e ->
-                            match e with
-                            | :? AggregateException as ae ->
-                                let exns = ae.Flatten().InnerExceptions
-                                // exns
-                                // |> Expect.exceptionExists "System.Net.WebSockets.WebSocketException" "The WebSocket is in an invalid state ('Aborted') for this operation. Valid states are: 'Open, CloseReceived'"
-                                try
-                                    exns
-                                    |> Expect.exceptionExists "System.InvalidOperationException" "There is already one outstanding 'SendAsync' call for this WebSocket instance. ReceiveAsync and SendAsync can be called simultaneously, but at most one outstanding operation for each of them is allowed at the same time."
-                                with _ -> do! inner()
-                            | e -> do! inner ()
-                        | _ ->
-                            do! inner ()
-                    | Choice2Of2 e ->
-                        ()
-                        // do! inner()
+                            skiptest "Socket connection failed. Skipping"
+                            // do! inner()
                 }
-                do! inner ()
+                do! inner 0
             }
 
         yield
@@ -199,14 +205,14 @@ let tests =
 
                     let expected =
                         [1..maxMessagesToSend]
-                        |> Seq.map ^ fun _ -> (genStr 100)
+                        |> Seq.map ^ fun _ -> (genStr 100000)
                         |> Seq.toList
-                    let! sendResult =
-                        expected
-                        |> Seq.map  (ThreadSafeWebSocket.sendMessageAsUTF8 threadSafeWebSocket)
-                        |> Job.conIgnore
-                        |> Job.catch
-                    Expect.isChoice1Of2 sendResult "did not throw System.InvalidOperationException"
+                    // let! sendResult =
+                    expected
+                        |> Seq.iter  (ThreadSafeWebSocket.sendMessageAsUTF8 threadSafeWebSocket >> start)
+                        // |> Job.conIgnore
+                        // |> Job.catch
+                    // Expect.isChoice1Of2 sendResult "did not throw System.InvalidOperationException"
                     let! receiveResult =
                         [1..maxMessagesToSend]
                         |> Seq.map ^ fun _ ->
@@ -214,6 +220,6 @@ let tests =
                         |> Job.seqCollect
                     Expect.sequenceEqual (receiveResult |> Seq.sort) (expected |> Seq.sort) "Didn't echo properly"
 
-                    // do!  ThreadSafeWebSocket.close threadSafeWebSocket WebSocketCloseStatus.NormalClosure "End Test"
+                    do!  ThreadSafeWebSocket.close threadSafeWebSocket WebSocketCloseStatus.NormalClosure "End Test"
             }
   ]
