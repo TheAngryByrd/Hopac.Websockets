@@ -213,6 +213,8 @@ Target "Release" (fun _ ->
     Branches.pushTag "" "origin" release.NugetVersion
 )
 
+Target "Rebuild" DoNothing
+
 "Clean" ?=> "DotnetRestore"
 "Clean" ==> "DotnetPack"
 
@@ -229,5 +231,8 @@ Target "Release" (fun _ ->
 
 "DotnetRestore"
  ==> "WatchTests"
+
+"Clean" ==> "Rebuild"
+"DotnetBuild" ==> "Rebuild"
 
 RunTargetOrDefault "DotnetPack"
