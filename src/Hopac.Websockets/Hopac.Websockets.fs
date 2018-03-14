@@ -284,7 +284,7 @@ module ThreadSafeWebSocket =
                 (bufferSize, messageType, stream, reply,nack)
 
         /// Receives a whole message as a utf8 string
-        let readMessageAsUTF8 (wsts : ThreadSafeWebSocket)  =
+        let receiveMessageAsUTF8 (wsts : ThreadSafeWebSocket)  =
             Alt.using
                 (new IO.MemoryStream())
                 ^ fun stream ->

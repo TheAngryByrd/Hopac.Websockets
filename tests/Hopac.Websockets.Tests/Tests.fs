@@ -137,6 +137,17 @@ let inline getServerAndWs () = job {
 [<Tests>]
 let tests =
     testList "samples" [
+        yield
+            testCaseJob "CT" <| job {
+                use ct = new CancellationTokenSource(50)
+                let! result =
+                    Alt.choose [
+                        timeOutMillis 100 |> Alt.afterFun ^ fun _ -> "timeout"
+                        Alt.fromCT ct.Token |> Alt.afterFun ^ fun _ -> "cancelled"
+                    ]
+                Expect.equal result "cancelled" "not cancelled"
+            }
+
         yield!
             [1..10]
             |> Seq.map ^ fun index ->
@@ -215,7 +226,7 @@ let tests =
                     let! receiveResult =
                         [1..maxMessagesToSend]
                         |> Seq.map ^ fun _ ->
-                            ThreadSafeWebSocket.readMessageAsUTF8 threadSafeWebSocket
+                            ThreadSafeWebSocket.receiveMessageAsUTF8 threadSafeWebSocket
                         |> Job.seqCollect
                     Expect.sequenceEqual (receiveResult |> Seq.sort) (expected |> Seq.sort) "Didn't echo properly"
 
