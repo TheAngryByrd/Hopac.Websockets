@@ -1,0 +1,27 @@
+group Server
+  storage: none
+  source https://api.nuget.org/v3/index.json
+
+  nuget FSharp.Core
+  nuget Giraffe ~> 1
+  nuget Microsoft.AspNetCore
+  nuget Microsoft.AspNetCore.StaticFiles
+  nuget Microsoft.AspNetCore.WebSockets
+  nuget Newtonsoft.Json
+  nuget Fable.JsonConverter
+  clitool Microsoft.DotNet.Watcher.Tools
+
+group Client
+  storage: none
+  source https://api.nuget.org/v3/index.json
+
+  nuget Fable.Core
+  nuget Fable.Elmish.Debugger
+  nuget Fable.Elmish.React
+  nuget Fable.Elmish.HMR
+  clitool dotnet-fable
+
+group Build
+  source https://api.nuget.org/v3/index.json
+
+  nuget FAKE
