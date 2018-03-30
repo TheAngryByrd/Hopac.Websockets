@@ -211,23 +211,24 @@ let tests =
                     use clientWebSocket = clientWebSocket
                     let! threadSafeWebSocket = ThreadSafeWebSocket.createFromWebSocket clientWebSocket
 
-                    let maxMessagesToSend = 500
+                    let maxMessagesToSend = 5000
 
-                    let expected =
-                        [1..maxMessagesToSend]
-                        |> Seq.map ^ fun _ -> (genStr 100000)
-                        |> Seq.toList
-                    // let! sendResult =
-                    expected
-                        |> Seq.iter  (ThreadSafeWebSocket.sendMessageAsUTF8 threadSafeWebSocket >> start)
-                        // |> Job.conIgnore
-                        // |> Job.catch
-                    // Expect.isChoice1Of2 sendResult "did not throw System.InvalidOperationException"
                     let! receiveResult =
                         [1..maxMessagesToSend]
                         |> Seq.map ^ fun _ ->
                             ThreadSafeWebSocket.receiveMessageAsUTF8 threadSafeWebSocket
-                        |> Job.seqCollect
+                        |> Job.conCollect
+                        |> Promise.start
+
+                    let expected =
+                        [1..maxMessagesToSend]
+                        |> Seq.map ^ fun _ -> (genStr 10000)
+                        |> Seq.toList
+                    expected
+                        |> Seq.iter  (ThreadSafeWebSocket.sendMessageAsUTF8 threadSafeWebSocket >> start)
+
+                    let! receiveResult = receiveResult
+
                     Expect.sequenceEqual (receiveResult |> Seq.sort) (expected |> Seq.sort) "Didn't echo properly"
 
                     do!  ThreadSafeWebSocket.close threadSafeWebSocket WebSocketCloseStatus.NormalClosure "End Test"

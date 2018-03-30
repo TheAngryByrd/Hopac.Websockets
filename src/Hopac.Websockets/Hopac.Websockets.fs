@@ -151,7 +151,7 @@ module WebSocket =
 
     /// Receives a whole message written to the given stream
     /// Attempts to handle closes gracefully
-    let receiveMessage bufferSize messageType (writeableStream : IO.Stream) (socket : #WebSocket) =
+    let receiveMessage bufferSize messageType (writeableStream : IO.Stream) (socket : WebSocket) =
         Alt.withNackJob ^ fun nack -> job {
             let buffer = new ArraySegment<Byte>( Array.create (bufferSize) Byte.MinValue)
 
@@ -160,8 +160,8 @@ module WebSocket =
                     ((socket |> receive buffer) ^-> Some)
                     <|> (nack ^-> fun _ -> None)
                 match result with
-                | Some result when result.MessageType = WebSocketMessageType.Close ->
-                    printfn "Close received! %A - %A" socket.CloseStatus socket.CloseStatusDescription
+                | Some result when result.MessageType = WebSocketMessageType.Close || socket.State = WebSocketState.CloseReceived ->
+                    // printfn "Close received! %A - %A" socket.CloseStatus socket.CloseStatusDescription
                     do! closeOutput WebSocketCloseStatus.NormalClosure "Close received" socket
                 | Some result ->
                     // printfn "result.MessageType -> %A" result.MessageType
