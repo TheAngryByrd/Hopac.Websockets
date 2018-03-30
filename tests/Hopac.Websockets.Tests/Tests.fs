@@ -149,7 +149,7 @@ let tests =
             }
 
         yield!
-            [1..10]
+            [1..1]
             |> Seq.map ^ fun index ->
                 testCaseJob (sprintf "Echo Hello World - %d" index) <| job {
                     let! (server, clientWebSocket) = getServerAndWs()
@@ -167,7 +167,7 @@ let tests =
                 // Go figure trying to get a timing exception to occur isn't always reliable
                 // Job.catch returns empty exception sometimes so we'll keep trying until we get the exception we're looking for
                 let rec inner (attempt : int) = job {
-                    if attempt = 1000 then
+                    if attempt = 10 then
                         skiptest "Too many attempts. Skipping"
                     else
 
@@ -211,11 +211,11 @@ let tests =
                     use clientWebSocket = clientWebSocket
                     let! threadSafeWebSocket = ThreadSafeWebSocket.createFromWebSocket clientWebSocket
 
-                    let maxMessagesToSend = 500
+                    let maxMessagesToSend = 50
 
                     let expected =
                         [1..maxMessagesToSend]
-                        |> Seq.map ^ fun _ -> (genStr 100000)
+                        |> Seq.map ^ fun _ -> (genStr 1000)
                         |> Seq.toList
                     // let! sendResult =
                     expected
