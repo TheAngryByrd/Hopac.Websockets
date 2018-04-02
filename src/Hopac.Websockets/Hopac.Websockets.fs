@@ -199,6 +199,7 @@ module ThreadSafeWebSocket =
     type CloseOutputMessage = WebSocketCloseStatus * string * IVar<unit> * Promise<unit>
 
     type ThreadSafeWebSocket = {
+        websocket : WebSocket
         sendCh : Ch<SendMessage>
         receiveCh : Ch<ReceiveMessage>
         closeCh : Ch<CloseMessage>
@@ -214,12 +215,15 @@ module ThreadSafeWebSocket =
         let createFromWebSocket (webSocket : WebSocket) =
 
             let self = {
+                websocket = webSocket
                 sendCh = Ch ()
                 receiveCh = Ch ()
                 closeCh = Ch ()
                 closeOutputCh = Ch ()
             }
 
+            let webSocket = self.websocket
+            
             let send () =
                 self.sendCh ^=> fun (bufferSize, messageType, stream, reply, nack) -> job {
                     do! Alt.tryIn
