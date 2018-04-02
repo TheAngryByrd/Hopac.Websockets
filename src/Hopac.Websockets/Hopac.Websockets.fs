@@ -222,8 +222,6 @@ module ThreadSafeWebSocket =
                 closeOutputCh = Ch ()
             }
 
-            let webSocket = self.websocket
-            
             let send () =
                 self.sendCh ^=> fun (bufferSize, messageType, stream, reply, nack) -> job {
                     do! Alt.tryIn
