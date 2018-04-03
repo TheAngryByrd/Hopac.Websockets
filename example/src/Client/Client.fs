@@ -92,7 +92,7 @@ let view model dispatch =
       safeComponents ]
 
 
-let websocket = WebSocket.Create("ws://localhost:8081/ws/tickerWS")
+let websocket = WebSocket.Create((sprintf "ws://%s/ws/tickerWS" window.location.host))
 
 let webSocketSub initial =
     let sub dispatch =

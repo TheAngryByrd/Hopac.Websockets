@@ -3,6 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26124.0
 MinimumVisualStudioVersion = 15.0.26124.0
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".paket", ".paket", "{AB46463E-5B14-4B9D-A575-5A6EDE377EE5}"
+	ProjectSection(SolutionItems) = preProject
+		paket.dependencies = paket.dependencies
+	EndProjectSection
+EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{C397A34C-84F1-49E7-AEBC-2F9F2B196216}"
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Hopac.Websockets", "src\Hopac.Websockets\Hopac.Websockets.fsproj", "{5D30E174-2538-47AC-8443-318C8C5DC2C9}"
@@ -10,6 +15,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{ACBEE43C-7A88-4FB1-9B06-DB064D22B29F}"
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Hopac.Websockets.Tests", "tests\Hopac.Websockets.Tests\Hopac.Websockets.Tests.fsproj", "{1CA2E092-2320-451D-A4F0-9ED7C7C528CA}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Hopac.Websockets.AspNetCore", "src\Hopac.Websockets.AspNetCore\Hopac.Websockets.AspNetCore.fsproj", "{96FC30AA-D5BA-4391-9D43-C2D415DE4166}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -48,9 +55,22 @@ Global
 		{1CA2E092-2320-451D-A4F0-9ED7C7C528CA}.Release|x64.Build.0 = Release|x64
 		{1CA2E092-2320-451D-A4F0-9ED7C7C528CA}.Release|x86.ActiveCfg = Release|x86
 		{1CA2E092-2320-451D-A4F0-9ED7C7C528CA}.Release|x86.Build.0 = Release|x86
+		{96FC30AA-D5BA-4391-9D43-C2D415DE4166}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{96FC30AA-D5BA-4391-9D43-C2D415DE4166}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{96FC30AA-D5BA-4391-9D43-C2D415DE4166}.Debug|x64.ActiveCfg = Debug|x64
+		{96FC30AA-D5BA-4391-9D43-C2D415DE4166}.Debug|x64.Build.0 = Debug|x64
+		{96FC30AA-D5BA-4391-9D43-C2D415DE4166}.Debug|x86.ActiveCfg = Debug|x86
+		{96FC30AA-D5BA-4391-9D43-C2D415DE4166}.Debug|x86.Build.0 = Debug|x86
+		{96FC30AA-D5BA-4391-9D43-C2D415DE4166}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{96FC30AA-D5BA-4391-9D43-C2D415DE4166}.Release|Any CPU.Build.0 = Release|Any CPU
+		{96FC30AA-D5BA-4391-9D43-C2D415DE4166}.Release|x64.ActiveCfg = Release|x64
+		{96FC30AA-D5BA-4391-9D43-C2D415DE4166}.Release|x64.Build.0 = Release|x64
+		{96FC30AA-D5BA-4391-9D43-C2D415DE4166}.Release|x86.ActiveCfg = Release|x86
+		{96FC30AA-D5BA-4391-9D43-C2D415DE4166}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{5D30E174-2538-47AC-8443-318C8C5DC2C9} = {C397A34C-84F1-49E7-AEBC-2F9F2B196216}
 		{1CA2E092-2320-451D-A4F0-9ED7C7C528CA} = {ACBEE43C-7A88-4FB1-9B06-DB064D22B29F}
+		{96FC30AA-D5BA-4391-9D43-C2D415DE4166} = {C397A34C-84F1-49E7-AEBC-2F9F2B196216}
 	EndGlobalSection
 EndGlobal

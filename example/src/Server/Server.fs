@@ -7,12 +7,11 @@ open Microsoft.AspNetCore
 open Microsoft.AspNetCore.Builder
 open Microsoft.AspNetCore.Hosting
 open Microsoft.Extensions.DependencyInjection
-open FSharp.Control.Tasks.ContextInsensitive
 open Newtonsoft.Json
 open Giraffe
 open Hopac
 open Hopac.Websockets
-
+open Hopac.Websockets.AspNetCore
 
 open Shared
 
@@ -41,10 +40,9 @@ let webApp (dependencies: Dependencies ): HttpHandler =
                     printfn "Received websocket request!"
                     do!
                         job {
-                            let! (websocket : WebSocket) = ctx.WebSockets.AcceptWebSocketAsync()
-                            let! threadSafeWebSocket = ThreadSafeWebSocket.createFromWebSocket websocket
+                            let! threadSafeWebSocket = ctx.WebSockets.AcceptThreadSafeWebsocket()
                             printfn "Connected websocket request!"
-                            while websocket.State <> WebSocketState.Closed do
+                            while threadSafeWebSocket.websocket.State <> WebSocketState.Closed do
                                 do!
                                 dependencies.TickerStream
                                 |> Stream.mapFun JsonConvert.SerializeObject
