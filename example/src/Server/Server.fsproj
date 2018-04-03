@@ -9,7 +9,7 @@
     <Compile Include="Server.fs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\src\Hopac.Websockets\Hopac.Websockets.fsproj" />
+    <ProjectReference Include="..\..\..\src\Hopac.Websockets.AspNetCore\Hopac.Websockets.AspNetCore.fsproj" />
   </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>
