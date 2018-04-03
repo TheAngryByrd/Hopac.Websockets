@@ -4,20 +4,20 @@ open System.Reflection
 
 [<assembly: AssemblyTitleAttribute("Hopac.Websockets")>]
 [<assembly: AssemblyProductAttribute("Hopac.Websockets")>]
-[<assembly: AssemblyVersionAttribute("0.2.0")>]
-[<assembly: AssemblyMetadataAttribute("ReleaseDate","2018-04-02T00:00:00.0000000")>]
-[<assembly: AssemblyFileVersionAttribute("0.2.0")>]
-[<assembly: AssemblyInformationalVersionAttribute("0.2.0")>]
-[<assembly: AssemblyMetadataAttribute("ReleaseChannel","release")>]
-[<assembly: AssemblyMetadataAttribute("GitHash","06a7915b349bcb506c9dc31469f1b129814bdcab")>]
+[<assembly: AssemblyVersionAttribute("0.3.0")>]
+[<assembly: AssemblyMetadataAttribute("ReleaseDate","2018-04-03T00:00:00.0000000")>]
+[<assembly: AssemblyFileVersionAttribute("0.3.0")>]
+[<assembly: AssemblyInformationalVersionAttribute("0.3.0")>]
+[<assembly: AssemblyMetadataAttribute("ReleaseChannel","alpha")>]
+[<assembly: AssemblyMetadataAttribute("GitHash","228cb9b87abb08f05431401233f379c7d9991a03")>]
 do ()
 
 module internal AssemblyVersionInformation =
     let [<Literal>] AssemblyTitle = "Hopac.Websockets"
     let [<Literal>] AssemblyProduct = "Hopac.Websockets"
-    let [<Literal>] AssemblyVersion = "0.2.0"
-    let [<Literal>] AssemblyMetadata_ReleaseDate = "2018-04-02T00:00:00.0000000"
-    let [<Literal>] AssemblyFileVersion = "0.2.0"
-    let [<Literal>] AssemblyInformationalVersion = "0.2.0"
-    let [<Literal>] AssemblyMetadata_ReleaseChannel = "release"
-    let [<Literal>] AssemblyMetadata_GitHash = "06a7915b349bcb506c9dc31469f1b129814bdcab"
+    let [<Literal>] AssemblyVersion = "0.3.0"
+    let [<Literal>] AssemblyMetadata_ReleaseDate = "2018-04-03T00:00:00.0000000"
+    let [<Literal>] AssemblyFileVersion = "0.3.0"
+    let [<Literal>] AssemblyInformationalVersion = "0.3.0"
+    let [<Literal>] AssemblyMetadata_ReleaseChannel = "alpha"
+    let [<Literal>] AssemblyMetadata_GitHash = "228cb9b87abb08f05431401233f379c7d9991a03"

@@ -2,7 +2,7 @@
 namespace System
 open System.Reflection
 
-[<assembly: AssemblyTitleAttribute("Hopac.Websockets.Tests")>]
+[<assembly: AssemblyTitleAttribute("Hopac.Websockets.AspNetCore")>]
 [<assembly: AssemblyProductAttribute("Hopac.Websockets")>]
 [<assembly: AssemblyVersionAttribute("0.3.0")>]
 [<assembly: AssemblyMetadataAttribute("ReleaseDate","2018-04-03T00:00:00.0000000")>]
@@ -13,7 +13,7 @@ open System.Reflection
 do ()
 
 module internal AssemblyVersionInformation =
-    let [<Literal>] AssemblyTitle = "Hopac.Websockets.Tests"
+    let [<Literal>] AssemblyTitle = "Hopac.Websockets.AspNetCore"
     let [<Literal>] AssemblyProduct = "Hopac.Websockets"
     let [<Literal>] AssemblyVersion = "0.3.0"
     let [<Literal>] AssemblyMetadata_ReleaseDate = "2018-04-03T00:00:00.0000000"
