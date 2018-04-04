@@ -12,7 +12,7 @@
     <PackageLicenseUrl>https://github.com/TheAngryByrd/Hopac.Websockets/blob/master/LICENSE.md</PackageLicenseUrl>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <RepositoryType>git</RepositoryType>
-    <Authors>.AspNetCore</Authors>
+    <Authors>TheAngryByrd</Authors>
     <RepositoryUrl>https://github.com/TheAngryByrd/Hopac.Websockets</RepositoryUrl>
     <!-- owners is not supported in MSBuild -->
   </PropertyGroup>
