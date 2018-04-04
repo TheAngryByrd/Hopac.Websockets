@@ -1,4 +1,4 @@
-### 0.3.0-alpha001 - 2018-04-03
+### 0.3.0-alpha002 - 2018-04-03
 * FEATURE: Created Hopac.Websockets.AspNetCore package with AcceptThreadSafeWebsocket extension method added to the WebSocketManager for Microsoft.AspNetCore.Http.Abstractions (https://github.com/TheAngryByrd/Hopac.Websockets/pull/3)
 
 ### 0.2.0 - 2018-04-02
