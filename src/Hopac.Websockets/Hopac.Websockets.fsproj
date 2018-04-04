@@ -5,14 +5,14 @@
   </PropertyGroup>
   <PropertyGroup>
     <Title>Hopac.Websockets</Title>
-    <Description>Hopac.Websockets does the thing!</Description>
+    <Description>Hopac.Websockets - A Threadsafe Hopac wrapper around Websockets</Description>
     <!-- summary is not migrated from project.json, but you can use the <Description> property for that if needed. -->
     <PackageTags>f#, fsharp</PackageTags>
     <PackageProjectUrl>https://github.com/TheAngryByrd/Hopac.Websockets</PackageProjectUrl>
     <PackageLicenseUrl>https://github.com/TheAngryByrd/Hopac.Websockets/blob/master/LICENSE.md</PackageLicenseUrl>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <RepositoryType>git</RepositoryType>
-    <Authors>MyUsername</Authors>
+    <Authors>.AspNetCore</Authors>
     <RepositoryUrl>https://github.com/TheAngryByrd/Hopac.Websockets</RepositoryUrl>
     <!-- owners is not supported in MSBuild -->
   </PropertyGroup>
