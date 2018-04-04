@@ -19,10 +19,10 @@ MacOS/Linux | Windows
 
 ## Nuget 
 
-Stable | Prerelease
---- | ---
-Hopac.Websockets [![NuGet Badge](https://buildstats.info/nuget/Hopac.Websockets)](https://www.nuget.org/packages/Hopac.Websockets/) | [![NuGet Badge](https://buildstats.info/nuget/Hopac.Websockets?includePreReleases=true)](https://www.nuget.org/packages/Hopac.Websockets/)
-Hopac.Websockets.AspNetCore [![NuGet Badge](https://buildstats.info/nuget/Hopac.Websockets.AspNetCore)](https://www.nuget.org/packages/Hopac.Websockets.AspNetCore/)  | [![NuGet Badge](https://buildstats.info/nuget/Hopac.Websockets.AspNetCore?includePreReleases=true)](https://www.nuget.org/packages/Hopac.Websockets.AspNetCore/)
+Package | Stable | Prerelease
+--- | --- | ---
+Hopac.Websockets | [![NuGet Badge](https://buildstats.info/nuget/Hopac.Websockets)](https://www.nuget.org/packages/Hopac.Websockets/) | [![NuGet Badge](https://buildstats.info/nuget/Hopac.Websockets?includePreReleases=true)](https://www.nuget.org/packages/Hopac.Websockets/)
+Hopac.Websockets.AspNetCore | [![NuGet Badge](https://buildstats.info/nuget/Hopac.Websockets.AspNetCore)](https://www.nuget.org/packages/Hopac.Websockets.AspNetCore/)  | [![NuGet Badge](https://buildstats.info/nuget/Hopac.Websockets.AspNetCore?includePreReleases=true)](https://www.nuget.org/packages/Hopac.Websockets.AspNetCore/)
 
 ---
 
