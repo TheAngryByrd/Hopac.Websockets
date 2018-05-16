@@ -198,13 +198,21 @@ module ThreadSafeWebSocket =
     type CloseMessage = WebSocketCloseStatus * string * IVar<unit> * Promise<unit>
     type CloseOutputMessage = WebSocketCloseStatus * string * IVar<unit> * Promise<unit>
 
-    type ThreadSafeWebSocket = {
-        websocket : WebSocket
-        sendCh : Ch<SendMessage>
-        receiveCh : Ch<ReceiveMessage>
-        closeCh : Ch<CloseMessage>
-        closeOutputCh : Ch<CloseOutputMessage>
-    }
+    type ThreadSafeWebSocket =
+        { websocket : WebSocket
+          sendCh : Ch<SendMessage>
+          receiveCh : Ch<ReceiveMessage>
+          closeCh : Ch<CloseMessage>
+          closeOutputCh : Ch<CloseOutputMessage> }
+        interface IDisposable with
+            member x.Dispose() =
+                x.websocket.Dispose()
+        member x.State =
+            x.websocket.State
+        member x.CloseStatus =
+            x.websocket.CloseStatus |> Option.ofNullable
+        member x.CloseStatusDescription =
+            x.websocket.CloseStatusDescription
 
     /// Websockets only allow for one receive and one send at a time. This results in if multiple threads try to write to a stream, it will throw a `System.InvalidOperationException`. This wraps a websocket in a hopac server-client model that allows for multiple threads to write or read at the same time.
     /// See https://docs.microsoft.com/en-us/dotnet/api/system.net.websockets.websocket.receiveasync?view=netcore-2.0#Remarks
