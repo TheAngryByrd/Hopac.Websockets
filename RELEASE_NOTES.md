@@ -1,3 +1,6 @@
+### 0.4.0 - 2018-05-16
+* FEATURE: Made ThreadSafeWebSocket implement IDisposable and expose other members (https://github.com/TheAngryByrd/Hopac.Websockets/pull/4)
+
 ### 0.3.0 - 2018-04-03
 * FEATURE: Created Hopac.Websockets.AspNetCore package with AcceptThreadSafeWebsocket extension method added to the WebSocketManager for Microsoft.AspNetCore.Http.Abstractions (https://github.com/TheAngryByrd/Hopac.Websockets/pull/3)
 

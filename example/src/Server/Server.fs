@@ -38,8 +38,9 @@ let webApp (dependencies: Dependencies ): HttpHandler =
             task {
                 if ctx.WebSockets.IsWebSocketRequest then
                     printfn "Received websocket request!"
-                    do!
-                        job {
+                    let finished = IVar ()
+                    job {
+                        try
                             let! threadSafeWebSocket = ctx.WebSockets.AcceptThreadSafeWebsocket()
                             printfn "Connected websocket request!"
                             while threadSafeWebSocket.websocket.State <> WebSocketState.Closed do
@@ -47,9 +48,22 @@ let webApp (dependencies: Dependencies ): HttpHandler =
                                 dependencies.TickerStream
                                 |> Stream.mapFun JsonConvert.SerializeObject
                                 |> Stream.iterJob (ThreadSafeWebSocket.sendMessageAsUTF8 threadSafeWebSocket)
-
-                        } |> startAsTask
-
+                        with e ->
+                            printfn "sendMessageAsUTF8 error %A" e
+                        do! IVar.tryFill finished ()
+                    } |> start
+                    job {
+                        try
+                            let! threadSafeWebSocket = ctx.WebSockets.AcceptThreadSafeWebsocket()
+                            printfn "Connected websocket request!"
+                            while threadSafeWebSocket.websocket.State <> WebSocketState.Closed do
+                                let! result = ThreadSafeWebSocket.receiveMessageAsUTF8 threadSafeWebSocket
+                                printfn "received msg %s" result
+                        with e ->
+                            printfn "receiveMessageAsUTF8 error %A" e
+                        do! IVar.tryFill finished ()
+                    } |> start
+                    do! finished |> startAsTask
                     return! Successful.ok (text "OK") next ctx
                 else
                     return! next ctx
