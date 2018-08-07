@@ -45,6 +45,7 @@ module.exports = {
                 "ws": true
             },
         },
+        port: 8081,
         hot: true,
         inline: true
     },

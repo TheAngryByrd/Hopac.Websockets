@@ -38,12 +38,12 @@ let webApp (dependencies: Dependencies ): HttpHandler =
             task {
                 if ctx.WebSockets.IsWebSocketRequest then
                     printfn "Received websocket request!"
+
+                    use! threadSafeWebSocket = ctx.WebSockets.AcceptThreadSafeWebsocket() |> startAsTask
                     let finished = IVar ()
                     job {
                         try
-                            let! threadSafeWebSocket = ctx.WebSockets.AcceptThreadSafeWebsocket()
-                            printfn "Connected websocket request!"
-                            while threadSafeWebSocket.websocket.State <> WebSocketState.Closed do
+                            while threadSafeWebSocket.websocket.State = WebSocketState.Open do
                                 do!
                                 dependencies.TickerStream
                                 |> Stream.mapFun JsonConvert.SerializeObject
@@ -54,8 +54,6 @@ let webApp (dependencies: Dependencies ): HttpHandler =
                     } |> start
                     job {
                         try
-                            let! threadSafeWebSocket = ctx.WebSockets.AcceptThreadSafeWebsocket()
-                            printfn "Connected websocket request!"
                             while threadSafeWebSocket.websocket.State <> WebSocketState.Closed do
                                 let! result = ThreadSafeWebSocket.receiveMessageAsUTF8 threadSafeWebSocket
                                 printfn "received msg %s" result

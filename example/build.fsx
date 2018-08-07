@@ -28,7 +28,7 @@ let run cmd args workingDir =
       info.Arguments <- args) TimeSpan.MaxValue
   if result <> 0 then failwithf "'%s %s' failed" cmd args
 
-Target "Clean" (fun _ -> 
+Target "Clean" (fun _ ->
   CleanDirs [deployDir]
 )
 
@@ -45,7 +45,7 @@ Target "InstallClient" (fun _ ->
   run dotnetCli "restore" clientPath
 )
 
-Target "RestoreServer" (fun () -> 
+Target "RestoreServer" (fun () ->
   run dotnetCli "restore" serverPath
 )
 
@@ -63,7 +63,7 @@ Target "Run" (fun () ->
   }
   let browser = async {
     Threading.Thread.Sleep 5000
-    Diagnostics.Process.Start "http://localhost:8080" |> ignore
+    Diagnostics.Process.Start "http://localhost:8081" |> ignore
   }
 
   [ server; client; browser]

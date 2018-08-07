@@ -4,6 +4,7 @@ open System
 open Hopac
 [<AutoOpen>]
 module Infixes =
+    /// Higher precidence version of <| operator
     let (^) = (<|)
 
 
@@ -121,27 +122,27 @@ module WebSocket =
 
     /// Sends a whole message to the websocket read from the given stream
     let sendMessage bufferSize messageType (readableStream : #IO.Stream) (socket : #WebSocket) =
-        Alt.withNackJob ^ fun nack -> job {
-            let buffer = Array.create (bufferSize) Byte.MinValue
+        Alt.withNackJob ^ fun nack ->
+            Promise.start ^ job {
+                let buffer = Array.create (bufferSize) Byte.MinValue
 
-            let rec sendMessage' () = job {
-                let! read =
-                    readableStream |> Stream.read buffer 0 buffer.Length
-                    <|> nack ^-> fun () -> 0
-                if read > 0 then
-                    do!
-                        (socket |> send (ArraySegment(buffer |> Array.take read))  messageType false)
-                        <|> nack
-                    return! sendMessage'()
-                else
-                    do!
-                        (socket |> send (ArraySegment(Array.empty))  messageType true)
-                        <|> nack
+                let rec sendMessage' () = job {
+                    let! read =
+                        readableStream |> Stream.read buffer 0 buffer.Length
+                        <|> nack ^-> fun () -> 0
+                    if read > 0 then
+                        do!
+                            (socket |> send (ArraySegment(buffer |> Array.take read))  messageType false)
+                            <|> nack
+                        return! sendMessage'()
+                    else
+                        do!
+                            (socket |> send (ArraySegment(Array.empty))  messageType true)
+                            <|> nack
+                }
+
+                do! sendMessage'()
             }
-
-            do! sendMessage'()
-            return Alt.unit()
-        }
 
     /// Sends the UTF8 string as a whole websocket message
     let sendMessageAsUTF8 text socket =
@@ -152,31 +153,31 @@ module WebSocket =
     /// Receives a whole message written to the given stream
     /// Attempts to handle closes gracefully
     let receiveMessage bufferSize messageType (writeableStream : IO.Stream) (socket : WebSocket) =
-        Alt.withNackJob ^ fun nack -> job {
-            let buffer = new ArraySegment<Byte>( Array.create (bufferSize) Byte.MinValue)
+        Alt.withNackJob ^ fun nack ->
+            Promise.start ^ job {
+                let buffer = new ArraySegment<Byte>( Array.create (bufferSize) Byte.MinValue)
 
-            let rec readTillEnd' () = job {
-                let! (result : WebSocketReceiveResult option) =
-                    ((socket |> receive buffer) ^-> Some)
-                    <|> (nack ^-> fun _ -> None)
-                match result with
-                | Some result when result.MessageType = WebSocketMessageType.Close || socket.State = WebSocketState.CloseReceived ->
-                    // printfn "Close received! %A - %A" socket.CloseStatus socket.CloseStatusDescription
-                    do! closeOutput WebSocketCloseStatus.NormalClosure "Close received" socket
-                | Some result ->
-                    // printfn "result.MessageType -> %A" result.MessageType
-                    if result.MessageType <> messageType then return ()
-                    do! writeableStream |> Stream.write buffer.Array buffer.Offset  result.Count
-                        <|> nack
-                    if result.EndOfMessage then
+                let rec readTillEnd' () = job {
+                    let! (result : WebSocketReceiveResult option) =
+                        ((socket |> receive buffer) ^-> Some)
+                        <|> (nack ^-> fun _ -> None)
+                    match result with
+                    | Some result when result.MessageType = WebSocketMessageType.Close || socket.State = WebSocketState.CloseReceived ->
+                        // printfn "Close received! %A - %A" socket.CloseStatus socket.CloseStatusDescription
+                        do! closeOutput WebSocketCloseStatus.NormalClosure "Close received" socket
+                    | Some result ->
+                        // printfn "result.MessageType -> %A" result.MessageType
+                        if result.MessageType <> messageType then return ()
+                        do! writeableStream |> Stream.write buffer.Array buffer.Offset  result.Count
+                            <|> nack
+                        if result.EndOfMessage then
+                            return ()
+                        else return! readTillEnd' ()
+                    | None ->
                         return ()
-                    else return! readTillEnd' ()
-                | None ->
-                    return ()
+                }
+                do! readTillEnd' ()
             }
-            do! readTillEnd' ()
-            return Alt.unit()
-        }
 
     /// Receives a whole message as a utf8 string
     let receiveMessageAsUTF8 socket =
